@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.23",
     "next": "^16.3.8",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",

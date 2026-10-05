@@ -11,6 +11,11 @@ import { useShowcase } from "./showcase-context";
 
 type Tab = "feed" | "chat";
 
+const TABS: readonly (readonly [Tab, string])[] = [
+  ["feed", "Лента"],
+  ["chat", "Диалог"],
+];
+
 const KIND_LABEL: Record<Post["kind"], string> = {
   portrait: "Фото",
   list: "Карусель",
@@ -25,7 +30,7 @@ const KIND_LABEL: Record<Post["kind"], string> = {
  * so wide screens don't stretch a phone layout into empty space.
  */
 export function ProfileSheet() {
-  const { profile, story, closeTop } = useShowcase();
+  const { profile, story, closeTop, restoreFocus } = useShowcase();
   // Keep rendering the last persona while the sheet animates out
   const last = useRef<Persona | null>(null);
   if (profile) last.current = personaById[profile];
@@ -35,6 +40,21 @@ export function ProfileSheet() {
   useEffect(() => {
     if (profile) setTab("feed");
   }, [profile]);
+
+  const contentRef = useRef<HTMLDivElement>(null);
+  const tabRefs = useRef<Partial<Record<Tab, HTMLButtonElement | null>>>({});
+
+  // ARIA tabs: one tab stop (the selected tab); Left/Right (wrapping), Home and End move focus and select
+  const onTabKeyDown = (e: React.KeyboardEvent, index: number) => {
+    const last = TABS.length - 1;
+    const target =
+      e.key === "ArrowRight" ? (index + 1) % TABS.length : e.key === "ArrowLeft" ? (index - 1 + TABS.length) % TABS.length : e.key === "Home" ? 0 : e.key === "End" ? last : null;
+    if (target === null) return;
+    e.preventDefault();
+    const [id] = TABS[target];
+    setTab(id);
+    tabRefs.current[id]?.focus();
+  };
 
   // While stories play on top, the sheet must ignore outside clicks and Esc
   const guard = (e: Event) => {
@@ -46,6 +66,16 @@ export function ProfileSheet() {
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 z-50 bg-black/45 lg:bg-black/55 lg:backdrop-blur-[2px]" />
         <Drawer.Content
+          ref={contentRef}
+          // Focus moves into the sheet on open and returns to the button that opened it on close
+          onOpenAutoFocus={(e) => {
+            e.preventDefault();
+            contentRef.current?.focus({ preventScroll: true });
+          }}
+          onCloseAutoFocus={(e) => {
+            e.preventDefault();
+            if (p) restoreFocus("profile", p.id);
+          }}
           onPointerDownOutside={guard}
           onInteractOutside={guard}
           onFocusOutside={guard}
@@ -112,36 +142,41 @@ export function ProfileSheet() {
 
               <div className="flex min-h-0 flex-1 flex-col">
                 <div role="tablist" aria-label="Разделы профиля" className="flex shrink-0 gap-1 border-b border-line px-5 pt-3 lg:px-8 lg:pt-5">
-                  {(
-                    [
-                      ["feed", "Лента"],
-                      ["chat", "Диалог"],
-                    ] as const
-                  ).map(([id, label]) => (
-                    <button
-                      key={id}
-                      role="tab"
-                      type="button"
-                      aria-selected={tab === id}
-                      aria-controls={`panel-${id}`}
-                      onClick={() => setTab(id)}
-                      className={`relative h-11 rounded-t-lg px-4 text-[15px] font-semibold transition-colors ${
-                        tab === id ? "text-ink" : "text-ink/45 hover:bg-black/[0.04] hover:text-ink/80"
-                      }`}
-                    >
-                      {label}
-                      <span
-                        className="absolute inset-x-3 -bottom-px h-[3px] rounded-full bg-ink transition-transform duration-300"
-                        style={{ transform: tab === id ? "scaleX(1)" : "scaleX(0)" }}
-                      />
-                    </button>
-                  ))}
+                  {TABS.map(([id, label], i) => {
+                    const selected = tab === id;
+                    return (
+                      <button
+                        key={id}
+                        ref={(el) => {
+                          tabRefs.current[id] = el;
+                        }}
+                        id={`tab-${id}`}
+                        role="tab"
+                        type="button"
+                        aria-selected={selected}
+                        aria-controls={selected ? `panel-${id}` : undefined}
+                        tabIndex={selected ? 0 : -1}
+                        onClick={() => setTab(id)}
+                        onKeyDown={(e) => onTabKeyDown(e, i)}
+                        className={`relative h-11 rounded-t-lg px-4 text-[15px] font-semibold transition-colors ${
+                          selected ? "text-ink" : "text-ink/65 hover:bg-black/[0.04] hover:text-ink"
+                        }`}
+                      >
+                        {label}
+                        <span
+                          className="absolute inset-x-3 -bottom-px h-[3px] rounded-full bg-ink transition-transform duration-300"
+                          style={{ transform: selected ? "scaleX(1)" : "scaleX(0)" }}
+                        />
+                      </button>
+                    );
+                  })}
                 </div>
 
                 <div
                   key={tab}
                   id={`panel-${tab}`}
                   role="tabpanel"
+                  aria-labelledby={`tab-${tab}`}
                   className="anim-tab min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 lg:px-8 lg:py-6"
                   data-vaul-no-drag
                 >

@@ -31,6 +31,7 @@ Every Telegram link has the form `https://t.me/<bot>?start=<persona>_<source>`. 
 - **Stories.** A fullscreen viewer.
   - Tap the left or right of a slide to move, hold to pause, and swipe down to close. The arrow keys and Esc also work.
   - Polls can be voted on.
+  - On a phone held sideways (short landscape) the viewer switches to a split layout: the slide on the left, the caption and actions at full size on the right.
   - Each persona has 5 stories: 4 posts plus a closing Telegram slide. After that, the next blogger starts.
 - **Posts.** Five post designs are built from the portrait and palette, so a feed never looks like repeated placeholders:
   - a photo with a headline
@@ -48,7 +49,14 @@ Every Telegram link has the form `https://t.me/<bot>?start=<persona>_<source>`. 
   - one shared, one-shot scroll observer drives subtle reveals with light staggering
   - story slides, profile tabs and the sticky bar label ease between states instead of cutting
   - everything is shown immediately under `prefers-reduced-motion` and without JavaScript
-- **Accessibility.** Visible focus rings, a focus-trapped dialog, alt text on every portrait, 44px+ tap targets, safe-area insets, and full support for `prefers-reduced-motion`.
+- **Accessibility.**
+  - Stories and the profile sheet are real stacked dialogs: focus moves in, is trapped in the top layer, and returns to the control that opened it.
+  - Space pauses a story only when no control has focus, so focused buttons keep their native behaviour.
+  - The profile tabs follow the ARIA pattern (roving focus, Left/Right/Home/End).
+  - Text and poll results meet WCAG AA contrast.
+  - The hash and history state are validated, so a bad URL can never crash the page.
+  - Also: visible focus rings, alt text on every portrait, 44px+ tap targets, safe-area insets and `prefers-reduced-motion` support.
+  - Without JavaScript, all content is visible.
 
 ## AI-generated assets
 

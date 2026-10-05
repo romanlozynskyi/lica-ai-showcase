@@ -404,7 +404,10 @@ export const personas: Persona[] = [
 
 export const personaById = Object.fromEntries(personas.map((p) => [p.id, p])) as Record<PersonaId, Persona>;
 
-export const isPersonaId = (v: string): v is PersonaId => v in personaById;
+// Own-property check on purpose: `v in personaById` is also true for inherited names such as
+// "constructor", "toString" or "__proto__", which would pass validation and crash the render.
+export const isPersonaId = (v: unknown): v is PersonaId =>
+  typeof v === "string" && Object.prototype.hasOwnProperty.call(personaById, v);
 
 /** Stories = every post plus the closing "continue in Telegram" slide */
 export const storyCount = (p: Persona) => p.posts.length + 1;

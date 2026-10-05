@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Short landscape screens (a phone on its side). The story viewer switches to a split layout here. */
+@custom-variant land (@media (orientation: landscape) and (max-height: 520px));
+
 @theme {
   --font-display: var(--font-sofia), "Arial Narrow", sans-serif;
   --font-sans: var(--font-onest), system-ui, sans-serif;
@@ -103,6 +106,9 @@ label[for] {
 
 .cq {
   container-type: inline-size;
+  /* Layout unit for the story/post templates: 1% of the container width. Landscape stories lower it
+     (see the media block below) so text keeps a readable size instead of the whole slide being scaled. */
+  --u: 1cqw;
 }
 
 /* ---------- Motion ---------- */
@@ -197,7 +203,13 @@ label[for] {
 }
 .reveal-line > span {
   display: block;
-  transform: translateY(105%);
+}
+/* Starting position of the rise-in. Gated on scripting: without JS nothing would ever add .is-in,
+   and the hero headline and persona names would stay clipped away for good. */
+@media (scripting: enabled) {
+  .reveal-line > span {
+    transform: translateY(105%);
+  }
 }
 .is-in .reveal-line > span {
   animation: rise 0.9s var(--ease-out-soft) forwards;
@@ -308,6 +320,36 @@ label[for] {
 }
 .press:active {
   transform: scale(0.97);
+}
+
+/* ---------- Landscape stories ----------
+   Left half: the slide. Right half: caption + actions at full size. The slide unit --u is capped by the
+   height that is actually free, so text is laid out smaller rather than scaled after the fact. */
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .story-frame {
+    --fmin: 11px; /* floor for the tiny mono labels */
+  }
+  .story-frame .cq {
+    --u: min(1cqw, calc((100dvh - var(--safe-top, 0px) - var(--safe-bottom, 0px)) * 0.0097));
+  }
+  .story-footer {
+    background-color: var(--panel-bg);
+    color: var(--panel-fg);
+  }
+  .story-footer [data-act="profile"] {
+    background-color: color-mix(in srgb, currentColor 14%, transparent);
+  }
+  .story-footer [data-act="profile"]:hover {
+    background-color: color-mix(in srgb, currentColor 24%, transparent);
+  }
+  .story-footer [data-act="telegram"] {
+    background-color: var(--cta-bg);
+    color: var(--cta-fg);
+  }
+  .story-footer [data-act="telegram"]:hover {
+    background-color: color-mix(in srgb, var(--cta-bg) 85%, var(--cta-fg));
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
