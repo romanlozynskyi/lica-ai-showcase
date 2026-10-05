@@ -2,7 +2,15 @@
 
 A mobile-first landing page that presents four AI bloggers. Visitors can watch each blogger's stories, browse their feed, try a short scripted dialog, and then continue the conversation in Telegram.
 
-**Stack:** Next.js 16 (App Router), TypeScript, Tailwind CSS v4, [vaul](https://github.com/emilkowalski/vaul) for the bottom sheet, and `next/font`. There is no backend. All content lives in [`data/personas.ts`](data/personas.ts).
+**Live demo:** https://lica-ai-showcase.vercel.app
+
+## Copyright
+
+© 2026 Roman Lozynskyi. All rights reserved.
+
+This repository is public for evaluation and portfolio purposes only. No permission is granted to copy, modify, redistribute, or reuse the source code or assets (including the AI-generated portraits) without explicit written permission.
+
+**Stack:** Next.js 16 (App Router), TypeScript, Tailwind CSS v4, [vaul](https://github.com/emilkowalski/vaul) for the bottom sheet, [Radix Dialog](https://www.radix-ui.com/primitives/docs/components/dialog) for the stories viewer, and `next/font`. There is no backend. All content lives in [`data/personas.ts`](data/personas.ts).
 
 ## Run
 
@@ -17,12 +25,12 @@ npm run typecheck
 
 | Variable | Purpose | Default |
 |---|---|---|
-| `NEXT_PUBLIC_TG_BOT` | Telegram bot username used for every CTA | `lica_ai_demo_bot` (placeholder) |
+| `NEXT_PUBLIC_TG_BOT` | Telegram bot username (without `@`) that every "Перейти в Telegram" button opens | Telegram's official channel, `t.me/telegram`, as a demo destination |
 | `NEXT_PUBLIC_SITE_URL` | Absolute URL for Open Graph tags | the Vercel production domain, else `http://localhost:3000` |
 
-Copy [`.env.example`](.env.example) to `.env.local` to set them locally.
+Both are optional. Copy [`.env.example`](.env.example) to `.env.local` to set them locally.
 
-Every Telegram link has the form `https://t.me/<bot>?start=<persona>_<source>`. The source comes from `?utm_source=` (or `?src=`) on the landing URL, so each traffic channel and each chosen persona arrives at the bot already attributed.
+Every Telegram link has the form `https://t.me/<destination>?start=<persona>_<source>`. The source comes from `?utm_source=` (or `?src=`) on the landing URL, so with a real bot each traffic channel and each chosen persona arrives already attributed. The default demo destination ignores the `start` parameter.
 
 ## What's inside
 
@@ -71,3 +79,7 @@ All characters, their posts, and their dialogs are fictional, and the page says 
 ## Deploy
 
 Import the repository on Vercel. The framework preset is detected automatically. Optionally set the two environment variables above.
+
+---
+
+© 2026 Roman Lozynskyi. All rights reserved.

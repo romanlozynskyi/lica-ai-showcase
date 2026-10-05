@@ -55,8 +55,8 @@ function parseStored(v: unknown): Overlays | null {
   if (story !== null) {
     if (!story || typeof story !== "object") return null;
     const { persona, index } = story as Record<string, unknown>;
-    // +1: the closing "continue in Telegram" slide
     if (!isPersonaId(persona) || typeof index !== "number" || !Number.isInteger(index)) return null;
+    // index === posts.length is the closing "continue in Telegram" slide
     if (index < 0 || index > personaById[persona].posts.length) return null;
     parsedStory = { persona, index };
   }
