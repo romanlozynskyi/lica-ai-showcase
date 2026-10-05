@@ -1,0 +1,19 @@
+# dependencies / build output
+node_modules
+.next
+out
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+
+# local env + tooling
+.env*.local
+.cache
+.claude
+
+# local-only source files (the portraits used by the site live in public/personas)
+/lev
+/timur
+/vera
+/sonya
+*.docx
